@@ -20,24 +20,49 @@ namespace CarteTresors.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            //var result = await WriteFile(file);
-            //var filename = file.FileName;
-            //var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files");
-            //if (!Directory.Exists(filepath))
-            //{
-            //    Directory.CreateDirectory(filepath);
-            //}
-            //var exactpath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", filename);
-            //using (var stream = new FileStream(exactpath, FileMode.Create))
-            //{
-            //    await file.CopyToAsync(stream);
-            //}
-            //var lignes = System.IO.File.ReadAllLines(exactpath, Encoding.UTF8).ToList();
             var carte = new Carte().LireCarte(await ReadFile(file));
+            var listeSortie = new List<string>();
+            listeSortie.Add("C - " + carte.Largeur + " - " + carte.Hauteur);
+            foreach(var montagne in carte.Montagnes)
+            {
+                listeSortie.Add("M - " + montagne.Y + " - " + montagne.X);
+            }
+            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors\r\nrestants}");
+            foreach(var tresor in carte.Tresors)
+            {
+                listeSortie.Add("T - " + tresor.Y + " - " + tresor.X + " - " + tresor.Quantite);
+            }
+            carte.DessinerCarte(carte).ForEach(p => listeSortie.Add(p));
 
-            return Ok("Ca marche");
+            var filename = "carte.txt";
+            var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files");
+            if (!Directory.Exists(filepath))
+            {
+                Directory.CreateDirectory(filepath);
+            }
+            var exactpath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", filename);
+            using (var stream = new FileStream(exactpath, FileMode.Create))
+            {
+                using(var streamWriter = new StreamWriter(stream))
+                {
+                    foreach(var ligne in listeSortie)
+                    {
+                        streamWriter.WriteLine(ligne);
+                    }
+                }
+            }
+
+            var provider = new FileExtensionContentTypeProvider();
+            if (!provider.TryGetContentType(exactpath, out var contenttype))
+            {
+                contenttype = "application/octet-stream";
+            }
+
+            var bytes = await System.IO.File.ReadAllBytesAsync(exactpath);
+            return File(bytes, contenttype, Path.GetFileName(exactpath));
         }
 
+        // Lecture et mise en forme du fichier d'entrée
         private async Task<List<string>?> ReadFile(IFormFile file)
         {
             var filename = file.FileName;

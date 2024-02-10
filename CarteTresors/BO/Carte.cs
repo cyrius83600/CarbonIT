@@ -1,6 +1,6 @@
 ﻿namespace CarteTresors.BO
 {
-    internal class Carte
+    public class Carte
     {
         public string Initiale { get; set; }
         public int Largeur { get; set; }
@@ -60,8 +60,9 @@
             return carte;
         }
 
-        public void DessinerCarte(Carte carte)
+        public List<String> DessinerCarte(Carte carte)
         {
+            var liste = new List<string>();
             for (int i = 0; i < carte.Hauteur; i++)
             {
                 var s = "";
@@ -77,8 +78,9 @@
                         s += ".    ";
 
                 }
-                Console.WriteLine(s);
+                liste.Add(s);
             }
+            return liste;
         }
 
 
