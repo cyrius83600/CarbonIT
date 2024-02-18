@@ -19,7 +19,8 @@ namespace CarteTest
             var l4 = "T - 0 - 3 - 2";
             var l5 = "T - 1 - 3 - 1";
             var lignes = new List<string>() { l1, l2, l3, l4, l5 };
-            var carte = new Carte().LireCarte(lignes);
+            var carte = new Carte();
+            carte.LireCarte(lignes);
             Assert.AreEqual(carte.Tresors.Count, 2);
             Assert.AreEqual(carte.Montagnes.Count, 2);
             Assert.AreEqual(carte.Largeur, 3);

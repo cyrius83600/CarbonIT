@@ -20,19 +20,33 @@ namespace CarteTresors.Controllers
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            var carte = new Carte().LireCarte(await ReadFile(file));
+            var entree = await ReadFile(file);
+            var carte = new Carte();
+            carte.LireCarte(entree);
+            carte.RemplirCarte();
             var listeSortie = new List<string>();
             listeSortie.Add("C - " + carte.Largeur + " - " + carte.Hauteur);
             foreach(var montagne in carte.Montagnes)
             {
                 listeSortie.Add("M - " + montagne.Y + " - " + montagne.X);
             }
-            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors\r\nrestants}");
+            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors restants}");
             foreach(var tresor in carte.Tresors)
             {
                 listeSortie.Add("T - " + tresor.Y + " - " + tresor.X + " - " + tresor.Quantite);
             }
-            carte.DessinerCarte(carte).ForEach(p => listeSortie.Add(p));
+            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors restants}");
+            foreach (var tresor in carte.Tresors)
+            {
+                listeSortie.Add("T - " + tresor.Y + " - " + tresor.X + " - " + tresor.Quantite);
+            }
+            listeSortie.Add("# {A comme Aventurier} - {Nom de l’aventurier} - {Axe horizontal} - {Axe vertical} - {Orientation} - {Nb. trésors ramassés}");
+            foreach (var aventurier in carte.Aventuriers)
+            {
+                listeSortie.Add("A - " + aventurier.Nom + " - " + aventurier.Y + " - " + aventurier.X + " - " + aventurier.Orientation + " - " + aventurier.Tresor);
+            }
+            listeSortie.Add("\n");
+            carte.DessinerCarte().ForEach(p => listeSortie.Add(p));
 
             var filename = "carte.txt";
             var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files");

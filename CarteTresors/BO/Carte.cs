@@ -11,77 +11,157 @@
         public int DebutVertical { get; set; }
         public List<Montagne> Montagnes { get; set; }
         public List<Tresor> Tresors { get; set; }
+        public List<Aventurier> Aventuriers { get; set; }
 
-        void SetCarteMontagne(Carte carte, string[]? ligne)
+        // On récupère les montagnes
+        void SetCarteMontagne(string[]? ligne)
         {
             var montagne = new Montagne();
             montagne.Y = int.Parse(ligne[1]);
             montagne.X = int.Parse(ligne[2]);
-            carte.Montagnes.Add(montagne);
+            Montagnes.Add(montagne);
+        }
+        void SetCarteAventurier(string[]? ligne)
+        {
+            var aventurier = new Aventurier();
+            aventurier.Nom = ligne[1];
+            aventurier.Y = int.Parse(ligne[2]);
+            aventurier.X = int.Parse(ligne[3]);
+            SetOrientation(ligne, aventurier);
+            aventurier.Mouvements = ligne[5];
+            Aventuriers.Add(aventurier);
         }
 
-        void SetCarteTresor(Carte carte, string[]? ligne)
+        private void SetOrientation(string[]? ligne, Aventurier aventurier)
+        {
+            var orientation = ligne[4];
+            if (orientation == "S") aventurier.Orientation = Orientation.Sud;
+            if (orientation == "N") aventurier.Orientation = Orientation.Nord;
+            if (orientation == "E") aventurier.Orientation = Orientation.Est;
+            if (orientation == "O") aventurier.Orientation = Orientation.Ouest;
+        }
+
+        // On récupère les trésors
+        void SetCarteTresor(string[]? ligne)
         {
             var tresor = new Tresor();
             tresor.Y = int.Parse(ligne[1]);
             tresor.X = int.Parse(ligne[2]);
             tresor.Quantite = int.Parse(ligne[3]);
-            carte.Tresors.Add(tresor);
+            Tresors.Add(tresor);
         }
 
-        void SetCarteDimensions(Carte carte, string[]? ligne)
+        // On récupère les dimensions de la carte
+        void SetCarteDimensions(string[]? ligne)
         {
-            carte.Largeur = int.Parse(ligne[1]);
-            carte.Hauteur = int.Parse(ligne[2]);
+            Largeur = int.Parse(ligne[1]);
+            Hauteur = int.Parse(ligne[2]);
         }
         public Carte() { }
-
-        public Carte LireCarte(List<string> lignes)
+        // On extrait les montagnes, trésors et aventuriers du fichier text
+        public void LireCarte(List<string> lignes)
         {
-            var carte = new Carte();
-            carte.Montagnes = new List<Montagne>();
-            carte.Tresors = new List<Tresor>();
+            Montagnes = new List<Montagne>();
+            Tresors = new List<Tresor>();
+            Aventuriers = new List<Aventurier>();
             foreach (var l in lignes)
             {
                 var ligne = l.Replace(" ", "").Split('-');
                 if (l.StartsWith("C"))
-                {
-                    SetCarteDimensions(carte, ligne);
-                }
+                    SetCarteDimensions(ligne);
                 else if (l.StartsWith("M"))
-                {
-                    SetCarteMontagne(carte, ligne);
-                }
+                    SetCarteMontagne(ligne);
                 else if (l.StartsWith("T"))
-                {
-                    SetCarteTresor(carte, ligne);
-                }
+                    SetCarteTresor(ligne);
+                else if (l.StartsWith("A"))
+                    SetCarteAventurier(ligne);
             }
-            return carte;
         }
 
-        public List<String> DessinerCarte(Carte carte)
+        public void RemplirCarte()
         {
-            var liste = new List<string>();
-            for (int i = 0; i < carte.Hauteur; i++)
+            var count = 0;
+            var positionsAventurier = new Dictionary<string, Position>();
+            // On renseigne la position initiale dans le dictionnaire
+            // Et on charge le trésor si l'aventurier est dessus
+            foreach (var av in Aventuriers)
+            {
+                positionsAventurier.Add(av.Nom, new Position() { orientation = av.Orientation, X = av.X, Y = av.Y });
+                av.setTresor(this);
+            }
+            var maxCount = Aventuriers.Select(p => p.Mouvements.Length).Max();
+            while (count < maxCount)
+            {
+                foreach (var aventurier in Aventuriers)
+                {
+                    if (count < aventurier.Mouvements.Length)
+                        aventurier.Deplacement(this, count);
+                    if (count == aventurier.Mouvements.Length - 1)
+                        aventurier.isFinChemin = true;
+                }
+                // A chaque déplacement, on vérifie 
+                ValiderDeplacement(positionsAventurier);
+                count++;
+            }
+
+        }
+
+        public List<string> DessinerCarte()
+        {
+            var lignes = new List<string>();
+            for (int i = 0; i < Hauteur; i++)
             {
                 var s = "";
-                for (int j = 0; j < carte.Largeur; j++)
+                for (int j = 0; j < Largeur; j++)
                 {
-                    var m = carte.Montagnes.Where(p => p.X == i && p.Y == j).FirstOrDefault();
-                    var t = carte.Tresors.Where(p => p.X == i && p.Y == j).FirstOrDefault();
-                    if (m != null)
-                        s += "M     ";
-                    else if (t != null)
-                        s += "T(" + t.Quantite + ")  ";
-                    else
-                        s += ".    ";
-
+                    s = DessinerCase(i, s, j);
                 }
-                liste.Add(s);
+                lignes.Add(s);
             }
-            return liste;
+            return lignes;
         }
+
+        private string DessinerCase(int i, string s, int j)
+        {
+            var m = Montagnes.Where(p => p.X == i && p.Y == j).FirstOrDefault();
+            var t = Tresors.Where(p => p.X == i && p.Y == j).FirstOrDefault();
+            var av = Aventuriers.Where(p => p.X == i && p.Y == j).FirstOrDefault();
+            if (m != null)
+                s += "M     ";
+            else if (t != null)
+                s += "T(" + t.Quantite + ")  ";
+            else if (av != null)
+                s += "A(" + av.Nom + ")  ";
+            else
+                s += ".    ";
+            return s;
+        }
+
+        private void ValiderDeplacement(Dictionary<string, Position> positionsAventurier)
+        {
+            var cases = Aventuriers.Select(p => new Coordonnee() { X = p.X, Y = p.Y }).Distinct().ToList();
+            foreach (var av in cases)
+            {
+                // S'il n'y a pas de doublon ou si on prend le premier aventurier
+                // dans l'ordre d'apparition on valide déplacement
+                var doublons = Aventuriers.Where(p => p.X == av.X && p.Y == av.Y).OrderBy(p => p.Ordre).ToList();
+                var first = doublons[0];
+                positionsAventurier[first.Nom] = new Position() { orientation = first.Orientation, X = first.X, Y = first.Y };
+                // S'il y a des doublons tous les aventuriers reviennent à leur position initiale
+                if (doublons.Count > 1)
+                {
+                    for (int i = 1; i < doublons.Count; i++)
+                    {
+                        var position = positionsAventurier[doublons[i].Nom];
+                        doublons[i].X = position.X;
+                        doublons[i].Y = position.Y;
+                        doublons[i].Orientation = position.orientation;
+                    }
+                }
+            }
+        }
+
+
 
 
     }
