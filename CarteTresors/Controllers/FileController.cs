@@ -21,33 +21,22 @@ namespace CarteTresors.Controllers
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
             var entree = await ReadFile(file);
+            var listeSortie = await GetLignes(entree);
+            return await EcrireFichier(listeSortie);
+        }
+
+        private async Task<List<string>?> GetLignes(List<string>? entree)
+        {
             var carte = new Carte();
             carte.LireCarte(entree);
             carte.RemplirCarte();
-            var listeSortie = new List<string>();
-            listeSortie.Add("C - " + carte.Largeur + " - " + carte.Hauteur);
-            foreach(var montagne in carte.Montagnes)
-            {
-                listeSortie.Add("M - " + montagne.Y + " - " + montagne.X);
-            }
-            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors restants}");
-            foreach(var tresor in carte.Tresors)
-            {
-                listeSortie.Add("T - " + tresor.Y + " - " + tresor.X + " - " + tresor.Quantite);
-            }
-            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors restants}");
-            foreach (var tresor in carte.Tresors)
-            {
-                listeSortie.Add("T - " + tresor.Y + " - " + tresor.X + " - " + tresor.Quantite);
-            }
-            listeSortie.Add("# {A comme Aventurier} - {Nom de l’aventurier} - {Axe horizontal} - {Axe vertical} - {Orientation} - {Nb. trésors ramassés}");
-            foreach (var aventurier in carte.Aventuriers)
-            {
-                listeSortie.Add("A - " + aventurier.Nom + " - " + aventurier.Y + " - " + aventurier.X + " - " + aventurier.Orientation + " - " + aventurier.Tresor);
-            }
-            listeSortie.Add("\n");
+            var listeSortie = CarteEnTete(carte);
             carte.DessinerCarte().ForEach(p => listeSortie.Add(p));
+            return listeSortie;
+        }
 
+        private async Task<IActionResult> EcrireFichier(List<string>? listeSortie)
+        {
             var filename = "carte.txt";
             var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files");
             if (!Directory.Exists(filepath))
@@ -57,9 +46,9 @@ namespace CarteTresors.Controllers
             var exactpath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", filename);
             using (var stream = new FileStream(exactpath, FileMode.Create))
             {
-                using(var streamWriter = new StreamWriter(stream))
+                using (var streamWriter = new StreamWriter(stream))
                 {
-                    foreach(var ligne in listeSortie)
+                    foreach (var ligne in listeSortie)
                     {
                         streamWriter.WriteLine(ligne);
                     }
@@ -74,6 +63,34 @@ namespace CarteTresors.Controllers
 
             var bytes = await System.IO.File.ReadAllBytesAsync(exactpath);
             return File(bytes, contenttype, Path.GetFileName(exactpath));
+        }
+
+        private List<string>? CarteEnTete(Carte carte)
+        {
+            var listeSortie = new List<string>();
+            listeSortie.Add("C - " + carte.Largeur + " - " + carte.Hauteur);
+            foreach (var montagne in carte.Montagnes)
+            {
+                listeSortie.Add("M - " + montagne.Y + " - " + montagne.X);
+            }
+            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors restants}");
+            foreach (var tresor in carte.Tresors)
+            {
+                listeSortie.Add("T - " + tresor.Y + " - " + tresor.X + " - " + tresor.Quantite);
+            }
+            listeSortie.Add("# {T comme Trésor} - {Axe horizontal} - {Axe vertical} - {Nb. de trésors restants}");
+            foreach (var tresor in carte.Tresors)
+            {
+                listeSortie.Add("T - " + tresor.Y + " - " + tresor.X + " - " + tresor.Quantite);
+            }
+            listeSortie.Add("# {A comme Aventurier} - {Nom de l’aventurier} - {Axe horizontal} - {Axe vertical} - {Orientation} - {Nb. trésors ramassés}");
+            foreach (var aventurier in carte.Aventuriers)
+            {
+                listeSortie.Add("A - " + aventurier.Nom + " - " + aventurier.Y + " - " + aventurier.X + " - " + aventurier.Orientation + " - " + aventurier.Tresor);
+            }
+            listeSortie.Add("\n");
+            
+            return listeSortie;
         }
 
         // Lecture et mise en forme du fichier d'entrée
@@ -93,21 +110,5 @@ namespace CarteTresors.Controllers
             return System.IO.File.ReadAllLines(exactpath, Encoding.UTF8).ToList();
         }
 
-
-        [HttpGet]
-        [Route("DownloadFile")]
-        public async Task<IActionResult> DownloadFile(string filename)
-        {
-            var filepath = Path.Combine(Directory.GetCurrentDirectory(), "Upload\\Files", filename);
-
-            var provider = new FileExtensionContentTypeProvider();
-            if (!provider.TryGetContentType(filepath, out var contenttype))
-            {
-                contenttype = "application/octet-stream";
-            }
-
-            var bytes = await System.IO.File.ReadAllBytesAsync(filepath);
-            return File(bytes, contenttype, Path.GetFileName(filepath));
-        }
     }
 }

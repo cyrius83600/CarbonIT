@@ -39,23 +39,23 @@
             this.X++;
             this.Orientation = Orientation.Sud;
         }
-        public void AvancerDepuisSud(Carte carte, char deplacement, Montagne? montagneEst, Montagne? montagneOuest, Montagne? montagneNord, Montagne? montagneSud)
+        public void AvancerDepuisSud(Carte carte, char deplacement, bool montagneEst, bool montagneOuest, bool montagneNord, bool montagneSud)
         {
             if (deplacement == 'A')
             {
-                if (montagneSud != null)
+                if (montagneSud)
                     return;
                 else if (X < carte.Hauteur - 1)
                     DeplacementSud();
                 else if (X == carte.Hauteur - 1)
                 {
-                    if (montagneOuest != null)
+                    if (montagneOuest)
                         return;
                     if (Y > 0)
                         DeplacementOuest();
                     else if (Y == 0)
                     {
-                        if (montagneEst != null)
+                        if (montagneEst)
                             return;
                         else if (Y < carte.Largeur - 1)
                             DeplacementEst();
@@ -64,18 +64,18 @@
             }
             else if (deplacement == 'D')
             {
-                if (montagneOuest != null) return;
+                if (montagneOuest) return;
                 if (Y > 0)
                     DeplacementOuest();
                 else
                 {
-                    if (montagneEst != null)
+                    if (montagneEst)
                         return;
                     if (Y < carte.Largeur - 1)
                         DeplacementEst();
                     else if (Y == carte.Largeur - 1)
                     {
-                        if (montagneSud != null) return;
+                        if (montagneSud) return;
                         if (Y == 0 && X < carte.Hauteur - 1)
                             DeplacementSud();
                     }
@@ -84,38 +84,38 @@
             }
             else if (deplacement == 'G')
             {
-                if (montagneEst != null) return;
+                if (montagneEst) return;
                 if (Y < carte.Largeur - 1)
                     DeplacementEst();
                 else
                 {
                     if (Y == carte.Largeur - 1)
                     {
-                        if (montagneOuest != null) return;
+                        if (montagneOuest) return;
                         if (Y > 0)
                             this.DeplacementOuest();
-                        if (this.X < carte.Hauteur - 1 && montagneSud == null)
+                        if (this.X < carte.Hauteur - 1 && !montagneSud)
                             this.DeplacementSud();
 
                     }
                 }
             }
         }
-        public void AvancerDepuisOuest(Carte carte, char deplacement, Montagne? montagneEst, Montagne? montagneOuest, Montagne? montagneNord, Montagne? montagneSud)
+        public void AvancerDepuisOuest(Carte carte, char deplacement, bool montagneEst, bool montagneOuest, bool montagneNord, bool montagneSud)
         {
             if (deplacement == 'A')
             {
-                if (montagneOuest != null) return;
+                if (montagneOuest) return;
                 if (Y > 0)
                     DeplacementOuest();
                 else if (Y == 0)
                 {
-                    if (montagneNord != null) return;
+                    if (montagneNord) return;
                     if (X > 0)
                         DeplacementNord();
                     else
                     {
-                        if (montagneSud != null) return;
+                        if (montagneSud) return;
                         else if (X == 0 && X < carte.Hauteur - 1)
                             DeplacementSud();
                     }
@@ -123,17 +123,17 @@
             }
             if (deplacement == 'D')
             {
-                if (montagneNord != null) return;
+                if (montagneNord) return;
                 if (X > 0)
                     DeplacementNord();
                 else if (X == 0)
                 {
-                    if (montagneSud != null) return;
+                    if (montagneSud) return;
                     if (X < carte.Hauteur - 1)
                         DeplacementSud();
                     else
                     {
-                        if (montagneOuest != null) return;
+                        if (montagneOuest) return;
                         if (Y > 0)
                             DeplacementOuest();
                     }
@@ -141,39 +141,39 @@
             }
             else if (deplacement == 'G')
             {
-                if (montagneSud != null) return;
+                if (montagneSud) return;
                 if (X < carte.Hauteur - 1)
                     DeplacementSud();
                 else if (X == carte.Hauteur - 1)
                 {
-                    if (montagneNord != null) return;
+                    if (montagneNord) return;
                     if (X > 0)
                         DeplacementNord();
                     else
                     {
-                        if (montagneOuest != null) return;
-                        if (Y > 0 && montagneEst == null)
+                        if (montagneOuest) return;
+                        if (Y > 0 && !montagneEst)
                             DeplacementOuest();
                     }
                 }
 
             }
         }
-        public void AvancerDepuisNord(Carte carte, char deplacement, Montagne? montagneEst, Montagne? montagneOuest, Montagne? montagneNord, Montagne? montagneSud)
+        public void AvancerDepuisNord(Carte carte, char deplacement, bool montagneEst, bool montagneOuest, bool montagneNord, bool montagneSud)
         {
             if (deplacement == 'A')
             {
-                if (montagneNord != null) return;
+                if (montagneNord) return;
                 if (X > 0)
                     DeplacementNord();
                 else if (X == 0)
                 {
-                    if (montagneEst != null) return;
+                    if (montagneEst) return;
                     if (Y < carte.Largeur - 1)
                         DeplacementEst();
                     else if (Y == carte.Largeur - 1)
                     {
-                        if (montagneOuest != null) return;
+                        if (montagneOuest) return;
                         if (Y > 0)
                             DeplacementOuest();
                     }
@@ -181,17 +181,17 @@
             }
             if (deplacement == 'D')
             {
-                if (montagneEst != null) return;
+                if (montagneEst) return;
                 if (Y < carte.Largeur - 1)
                     DeplacementEst();
                 else if (Y == carte.Largeur - 1)
                 {
-                    if (montagneOuest != null) return;
+                    if (montagneOuest) return;
                     if (Y > 0)
                         DeplacementOuest();
                     else
                     {
-                        if (montagneNord != null) return;
+                        if (montagneNord) return;
                         if (Y > 0)
                             DeplacementNord();
                     }
@@ -199,40 +199,40 @@
             }
             if (deplacement == 'G')
             {
-                if (montagneOuest != null) return;
+                if (montagneOuest) return;
                 if (Y > 0)
                     DeplacementOuest();
                 else
                 {
-                    if (montagneEst != null) return;
+                    if (montagneEst) return;
                     if (Y < carte.Largeur - 1)
                         DeplacementEst();
                     else if (Y == carte.Largeur - 1)
                     {
-                        if (montagneNord != null) return;
+                        if (montagneNord) return;
                         if (X > 0)
                             DeplacementNord();
                     }
                 }
             }
         }
-        public void AvancerDepuisEst(Carte carte, char deplacement, Montagne? montagneEst, Montagne? montagneOuest, Montagne? montagneNord, Montagne? montagneSud)
+        public void AvancerDepuisEst(Carte carte, char deplacement, bool montagneEst, bool montagneOuest, bool montagneNord, bool montagneSud)
         {
             if (deplacement == 'A')
             {
-                if (montagneEst != null) return;
+                if (montagneEst) return;
                 if (Y < carte.Largeur - 1)
                     DeplacementEst();
                 else
                 {
                     if (Y == carte.Largeur - 1)
                     {
-                        if (montagneSud != null) return;
+                        if (montagneSud) return;
                         if (X < carte.Hauteur - 1)
                             DeplacementSud();
                         else
                         {
-                            if (montagneNord != null) return;
+                            if (montagneNord) return;
                             if (X > 0)
                             {
                                 DeplacementNord();
@@ -244,17 +244,17 @@
             }
             if (deplacement == 'G')
             {
-                if (montagneNord != null) return;
+                if (montagneNord) return;
                 if (X > 0)
                     DeplacementNord();
                 else if (X == 0)
                 {
-                    if (montagneSud != null) return;
+                    if (montagneSud) return;
                     if (X < carte.Hauteur - 1)
                         DeplacementSud();
                     else
                     {
-                        if (montagneEst != null) return;
+                        if (montagneEst) return;
                         if (Y < carte.Largeur - 1)
                             DeplacementEst();
                     }
@@ -262,17 +262,17 @@
             }
             if (deplacement == 'D')
             {
-                if (montagneSud != null) return;
+                if (montagneSud) return;
                 if (X < carte.Hauteur - 1)
                     DeplacementSud();
                 else if (X == carte.Hauteur - 1)
                 {
-                    if (montagneNord != null) return;
+                    if (montagneNord) return;
                     if (X > 0)
                         DeplacementNord();
                     else if (X == 0)
                     {
-                        if (montagneEst == null) return;
+                        if (montagneEst) return;
                         if (Y < carte.Largeur - 1)
                             DeplacementEst();
                     }
@@ -293,25 +293,33 @@
         {
             var Montagnes = carte.Montagnes;
             var deplacement = Mouvements[count];
-            var montagneEst = Montagnes.FirstOrDefault(p => p.X == X && p.Y == Y + 1);
-            var montagneOuest = Montagnes.FirstOrDefault(p => p.X == X && p.Y == Y - 1);
-            var montagneNord = Montagnes.FirstOrDefault(p => p.X == X - 1 && p.Y == Y);
-            var montagneSud = Montagnes.FirstOrDefault(p => p.X == X + 1 && p.Y == Y);
+            var est = new Coordonnee() { X = X, Y = Y + 1 };
+            var montagneEst = carte.Cases.ContainsKey(est) && carte.Cases[est].isMontagne;
+            //var montagneEst = Montagnes.FirstOrDefault(p => p.X == X && p.Y == Y + 1);
+            var ouest = new Coordonnee() { X = X, Y = Y - 1 };
+            var montagneOuest = carte.Cases.ContainsKey(ouest) && carte.Cases[ouest].isMontagne;
+            //var montagneOuest = Montagnes.FirstOrDefault(p => p.X == X && p.Y == Y - 1);
+            var nord = new Coordonnee() { X = X - 1, Y = Y};
+            var montagneNord = carte.Cases.ContainsKey(nord) && carte.Cases[nord].isMontagne;
+            //var montagneNord = Montagnes.FirstOrDefault(p => p.X == X - 1 && p.Y == Y);
+            var sud = new Coordonnee() { X = X + 1, Y = Y};
+            var montagneSud = carte.Cases.ContainsKey(sud) && carte.Cases[sud].isMontagne;
+            //var montagneSud = Montagnes.FirstOrDefault(p => p.X == X + 1 && p.Y == Y);
             if (Orientation == Orientation.Sud)
             {
                 AvancerDepuisSud(carte, deplacement, montagneEst, montagneOuest, montagneNord, montagneSud);
             }
             else if (Orientation == Orientation.Ouest)
             {
-                AvancerDepuisOuest(carte, deplacement, montagneEst, montagneOuest, montagneNord, montagneEst);
+                AvancerDepuisOuest(carte, deplacement, montagneEst, montagneOuest, montagneNord, montagneSud);
             }
             else if (Orientation == Orientation.Nord)
             {
-                AvancerDepuisNord(carte, deplacement, montagneEst, montagneOuest, montagneNord, montagneEst);
+                AvancerDepuisNord(carte, deplacement, montagneEst, montagneOuest, montagneNord, montagneSud);
             }
             else if (Orientation == Orientation.Est)
             {
-                AvancerDepuisEst(carte, deplacement, montagneEst, montagneOuest, montagneNord, montagneOuest);
+                AvancerDepuisEst(carte, deplacement, montagneEst, montagneOuest, montagneNord, montagneSud);
             }
             setTresor(carte);
         }

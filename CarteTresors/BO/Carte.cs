@@ -12,6 +12,7 @@
         public List<Montagne> Montagnes { get; set; }
         public List<Tresor> Tresors { get; set; }
         public List<Aventurier> Aventuriers { get; set; }
+        public Dictionary<Coordonnee, Case> Cases { get; set; }
 
         // On récupère les montagnes
         void SetCarteMontagne(string[]? ligne)
@@ -19,6 +20,12 @@
             var montagne = new Montagne();
             montagne.Y = int.Parse(ligne[1]);
             montagne.X = int.Parse(ligne[2]);
+            var coordonnee = new Coordonnee() { X = montagne.X, Y = montagne.Y};
+            var Case = new Case() { isMontagne = true };
+            if (!Cases.ContainsKey(coordonnee))
+                Cases.Add(coordonnee, Case);
+            else
+                Cases[coordonnee].isMontagne = true;
             Montagnes.Add(montagne);
         }
         void SetCarteAventurier(string[]? ligne)
@@ -48,6 +55,12 @@
             tresor.Y = int.Parse(ligne[1]);
             tresor.X = int.Parse(ligne[2]);
             tresor.Quantite = int.Parse(ligne[3]);
+            var coordonnee = new Coordonnee() { X = tresor.X, Y = tresor.Y };
+            var Case = new Case() { Tresor = tresor.Quantite };
+            if (!Cases.ContainsKey(coordonnee))
+                Cases.Add(coordonnee, Case);
+            else
+                Cases[coordonnee].isMontagne = true;
             Tresors.Add(tresor);
         }
 
@@ -64,6 +77,7 @@
             Montagnes = new List<Montagne>();
             Tresors = new List<Tresor>();
             Aventuriers = new List<Aventurier>();
+            Cases = new Dictionary<Coordonnee, Case>();
             foreach (var l in lignes)
             {
                 var ligne = l.Replace(" ", "").Split('-');
@@ -121,6 +135,7 @@
             return lignes;
         }
 
+        // On place les montagnes, les trésors, les aventuriers
         private string DessinerCase(int i, string s, int j)
         {
             var m = Montagnes.Where(p => p.X == i && p.Y == j).FirstOrDefault();
@@ -137,6 +152,7 @@
             return s;
         }
 
+        // On commit le déplacement
         private void ValiderDeplacement(Dictionary<string, Position> positionsAventurier)
         {
             var cases = Aventuriers.Select(p => new Coordonnee() { X = p.X, Y = p.Y }).Distinct().ToList();

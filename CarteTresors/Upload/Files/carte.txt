@@ -8,10 +8,10 @@ T - 1 - 3 - 2
 T - 0 - 3 - 1
 T - 1 - 3 - 2
 # {A comme Aventurier} - {Nom de l’aventurier} - {Axe horizontal} - {Axe vertical} - {Orientation} - {Nb. trésors ramassés}
-A - Lara - 2 - 3 - Sud - 2
+A - Lara - 0 - 1 - Ouest - 2
 
 
 .    M     .    
-.    .    M     
+A(Lara)  .    M     
 .    .    .    
-T(1)  T(2)  A(Lara)  
+T(1)  T(2)  .    
